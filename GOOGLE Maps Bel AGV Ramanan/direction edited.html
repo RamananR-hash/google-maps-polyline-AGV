@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Status</title>
+    <style>
+        #map {
+            height: 80%;
+        }
+
+
+        /* Optional: Makes the sample page fill the window. */
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <button onclick="Locate_OCU()">Locate OCU </button>
+    <button onclick="Vehicle_Home()">Vechicle Home</button>
+    <button onclick="Vehicle_status()">Vahicle Status</button>
+    <button onclick="Vehicle_End()">Vahicle End</button>
+
+
+    <div id="map"></div>
+
+
+
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=drawing&callback=initMap"
+        async defer>
+        </script>
+
+    <script>
+        //getLocation();
+        var count = 0;
+        var map, polyline, markers = new Array();
+        var planned = [];
+        var zoomval = 20;
+        let markers1 = []
+        var marker;
+        var center_loc;
+        var mapOptions;
+        var lat_ocu = 13.04903968959576;
+        var lon_ocu = 77.55895456333351;
+        var Vechicle_lat = 13.048939091123827;
+        var Vechicle_lon = 77.55820756812287;
+        const image =
+            "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+        function Locate_OCU() {
+            var pos = new google.maps.LatLng(lat_ocu, lon_ocu);
+            map.setCenter(pos);
+            map.setZoom(30);
+        }
+        function Vehicle_Home() {
+            var pos = new google.maps.LatLng(planned[0], planned[1]);
+            map.setCenter(pos);
+            map.setZoom(30);
+        }
+        function Vehicle_status() {
+            var pos = new google.maps.LatLng(Vechicle_lat, Vechicle_lon);
+            map.setCenter(pos);
+            map.setZoom(30);
+        }
+        function Vehicle_End() {
+            var pos = new google.maps.LatLng(planned[-1], planned[-2]);
+            map.setCenter(pos);
+            map.setZoom(30);
+        }
+
+        function LoadPlan() {
+            planned = [13.049002455101167, 77.55775293369484, 13.049001148627584, 77.55795678157997, 13.04900768099549, 77.55854552645874, 13.049018786020543,
+                77.55878290195656, 13.04903968959576, 77.55895456333351,
+                13.048959994705776, 77.55834838409615, 13.048939091123827, 77.55820756812287, 13.048954768810448, 77.558141854002, 13.048961301179588, 77.55801042576027];
+            var planned1 = [13.049002455101167, 77.55775293369484, 13.049001148627584, 77.55795678157997, 13.04900768099549, 77.55854552645874, 13.049018786020543,
+                77.55878290195656, 13.04903968959576, 77.55895456333351,
+                13.048959994705776, 77.55834838409615, 13.048939091123827, 77.55820756812287, 13.048954768810448, 77.558141854002, 13.048961301179588, 77.55801042576027];
+            for (var i = 0; i < planned.length; i += 2) {
+                var myLatlng = new google.maps.LatLng(planned[i], planned[i - 1]);
+                addPoint(myLatlng);
+            }
+            for (var i = 0; i < planned1.length; i += 2) {
+                var myLatlng = new google.maps.LatLng(planned1[i], planned1[i - 1]);
+                task(i, myLatlng)
+
+            }
+
+
+
+
+        }
+        function task(i, myLatlng) {
+            setTimeout(function () {
+                addPoint1(myLatlng);
+            }, 2000 * i);
+        }
+
+        function initMap() {
+
+            getLocation();
+            function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else { 
+                alert("Geolocation is not supported by this browser.");
+            }
+            }
+
+            function showPosition(position) {
+
+            center_loc = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            //center_loc=new google.maps.LatLng(13.049002455101167, 77.55775293369484);
+            mapOptions = {
+                zoom: zoomval,
+                center: center_loc,
+                mapTypeControl: false,
+                navigationControl: false,
+                streetViewControl: false,
+                keyboardShortcuts: true,
+                disableDefaultUI: true,
+                mapTypeId: google.maps.MapTypeId = 'satellite'
+            };
+
+            map = new google.maps.Map(document.getElementById('map'),
+                mapOptions);
+            polyline = new google.maps.Polyline({
+                strokeColor: 'red',
+                strokeWeight: 5,
+                map: map
+            });
+            polyline1 = new google.maps.Polyline({
+                strokeColor: 'Blue',
+                strokeWeight: 6,
+                map: map
+            });
+            LoadPlan();
+        }
+    }
+
+
+
+
+
+        function addPoint(latlng) {
+
+
+            marker = new google.maps.Marker({
+
+                position: latlng,
+                label: "",
+
+
+            });
+
+            markers.push(marker);
+
+            polyline.getPath().setAt(markers.length - 1, latlng);
+
+
+
+
+
+
+        }
+
+        function addPoint1(latlng1) {
+            var label_str = count.toString();
+            var marker = new google.maps.Marker({
+
+                position: latlng1,
+                label: label_str,
+                icon: image,
+
+                map: map
+
+            });
+
+            markers1.push(marker);
+
+            polyline1.getPath().setAt(markers1.length - 1, latlng1);
+
+            count++;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

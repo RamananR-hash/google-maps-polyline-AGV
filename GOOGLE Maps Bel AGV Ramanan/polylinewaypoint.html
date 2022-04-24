@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Waypoint</title>
+    <style>
+        #map {
+            height: 80%;
+        }
+
+
+        /* Optional: Makes the sample page fill the window. */
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        
+    </style>
+</head>
+
+<body>
+
+
+    <button onclick="refresh()">Clear poly Line</button>
+    <button onclick="SavePlan()">Save Plan</button>
+    <button onclick="LoadPlan()">Load Plan</button>
+    <button onclick="Gps_Points()">GPS POINTS</button>
+    <div id="map"></div>
+
+
+
+    <h1 id="Latlan_ar">Value</h1>
+
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=drawing&callback=initMap"
+        async defer>
+        </script>
+
+    <script>
+        var count = 0;
+        var map, polyline, markers = new Array();
+        var planned = [];
+        var zoomval = 20;
+        var Gps_points=[];
+
+
+        function refresh() {
+            location.reload();
+            latlng_array = [];
+            console.log(markers);
+            document.getElementById("Latlan_ar").innerHTML = latlng_array;
+
+
+        }
+        function SavePlan() {
+            alert(planned);
+        }
+        function LoadPlan() {
+            planned = [13.049002455101167, 77.55775293369484, 13.049001148627584, 77.55795678157997, 13.04900768099549, 77.55854552645874, 13.049018786020543,
+                77.55878290195656, 13.04903968959576, 77.55895456333351,
+                13.048959994705776, 77.55834838409615, 13.048939091123827, 77.55820756812287, 13.048954768810448, 77.558141854002, 13.048961301179588, 77.55801042576027];
+           
+            for (var i = 0; i < planned.length; i += 2) {
+                var myLatlng = new google.maps.LatLng(planned[i], planned[i - 1]);
+                //alert(planned[i])
+                addPoint(myLatlng);
+            }
+
+        }
+        function Gps_Points(){
+            alert(Gps_points);
+        }
+        function initMap() {
+            var mapOptions = {
+                zoom: zoomval,
+                center: new google.maps.LatLng(13.049284, 77.558052),
+                mapTypeControl: false,
+                navigationControl: false,
+                streetViewControl: false,
+                keyboardShortcuts: true,
+                disableDefaultUI: true,
+                mapTypeId: google.maps.MapTypeId = 'satellite'
+            };
+
+            map = new google.maps.Map(document.getElementById('map'),
+                mapOptions);
+            polyline = new google.maps.Polyline({
+                strokeColor: 'red',
+                strokeWeight: 5,
+                map: map
+            });
+
+            google.maps.event.addListener(map, 'click', function (event) {
+
+                addPoint(event.latLng);
+                planned.push(event.latLng.lat(), event.latLng.lng());
+                document.getElementById("Latlan_ar").innerHTML = planned;
+
+            });
+        }
+        function removePoint(marker) {
+
+            for (var i = 0; i < markers.length; i++) {
+
+                if (markers[i] === marker) {
+
+                    markers[i].setMap(null);
+                    markers.splice(i, 1);
+
+                    polyline.getPath().removeAt(i);
+                    planned.pop();
+                    planned.pop();
+                    Gps_points.pop();
+                    document.getElementById("Latlan_ar").innerHTML = planned;
+                    console.log(planned);
+
+                }
+            }
+
+
+        }
+
+        function addPoint(latlng) {
+
+            var label_str = count.toString();
+            var marker = new google.maps.Marker({
+
+                position: latlng,
+
+                label: label_str,
+                map: map
+
+            });
+
+            markers.push(marker);
+
+            polyline.getPath().setAt(markers.length - 1, latlng);
+            Gps_points.push(polyline.getPath().getArray().toString())
+
+            google.maps.event.addListener(marker, 'click', function (event) {
+
+                removePoint(marker);
+                count--;
+            });
+            count++;
+        }
+
+
+
+
+    </script>
+
+</body>
+
+</html>
